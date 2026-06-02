@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时间戳转换工具</title>
+    <style>
+        * {margin: 0; padding: 0; box-sizing: border-box;}
+        body {padding: 40px 20px; background: #f5f7fa; font-family: sans-serif;}
+        .wrap {max-width: 600px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px #eee;}
+        h3 {text-align: center; margin-bottom: 30px; color: #333;}
+        .item {margin-bottom: 20px;}
+        label {display: block; margin-bottom: 8px; color: #666;}
+        input {width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;}
+        .btn {display: flex; gap: 10px; margin-top: 10px;}
+        button {flex: 1; padding: 10px; border: none; border-radius: 4px; background: #409eff; color: #fff; cursor: pointer;}
+        button.reset {background: #909399;}
+        .result {margin-top: 20px; padding: 15px; background: #f0f7ff; border-radius: 4px; color: #333;}
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <h3>时间戳 <> 北京时间 双向转换工具</h3>
+        <div class="item">
+            <label>输入时间戳（自动识别秒/毫秒）</label>
+            <input type="text" id="timestamp" placeholder="请输入时间戳，如：1712345678 / 1712345678000">
+            <div class="btn">
+                <button onclick="tsToDate()">转换为时间</button>
+            </div>
+        </div>
+        <div class="item">
+            <label>输入标准时间</label>
+            <input type="datetime-local" id="dateTime">
+            <div class="btn">
+                <button onclick="dateToTs()">转换为时间戳</button>
+            </div>
+        </div>
+        <div class="btn">
+            <button onclick="copyRes()">复制结果</button>
+            <button class="reset" onclick="clearAll()">清空所有</button>
+        </div>
+        <div class="result" id="resultBox">转换结果将展示在此处</div>
+    </div>
+
+    <script>
+        let resText = '';
+        // 时间戳转日期
+        function tsToDate() {
+            const ts = document.getElementById('timestamp').value.trim();
+            if (!ts) return alert('请输入时间戳');
+            let time = Number(ts);
+            // 适配秒级时间戳
+            if (ts.length === 10) time = time * 1000;
+            const date = new Date(time);
+            if (date.toString() === 'Invalid Date') return alert('时间戳格式错误');
+            // 格式化北京时间
+            const formatTime = `${date.getFullYear()}-${fillZero(date.getMonth()+1)}-${fillZero(date.getDate())} ${fillZero(date.getHours())}:${fillZero(date.getMinutes())}:${fillZero(date.getSeconds())}`;
+            resText = formatTime;
+            document.getElementById('resultBox').innerText = `转换结果：${formatTime}`;
+        }
+
+        // 日期转时间戳
+        function dateToTs() {
+            const dateVal = document.getElementById('dateTime').value;
+            if (!dateVal) return alert('请选择时间');
+            const ts = new Date(dateVal).getTime();
+            resText = ts;
+            document.getElementById('resultBox').innerText = `毫秒时间戳：${ts}\n秒级时间戳：${Math.floor(ts / 1000)}`;
+        }
+
+        // 补零函数
+        function fillZero(num) {
+            return num < 10 ? '0' + num : num;
+        }
+
+        // 复制结果
+        function copyRes() {
+            if (!resText) return alert('暂无可复制内容');
+            const input = document.createElement('input');
+            input.value = resText;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            alert('结果复制成功');
+        }
+
+        // 清空所有
+        function clearAll() {
+            document.getElementById('timestamp').value = '';
+            document.getElementById('dateTime').value = '';
+            document.getElementById('resultBox').innerText = '转换结果将展示在此处';
+            resText = '';
+        }
+    </script>
+</body>
+</html>
